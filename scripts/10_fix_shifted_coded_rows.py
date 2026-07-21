@@ -8,6 +8,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from _cli_helpers import prompt_path
+
 
 def shift_row_left(row: pd.Series) -> list[object]:
     non_nans = row.dropna().tolist()
@@ -17,7 +19,7 @@ def shift_row_left(row: pd.Series) -> list[object]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("input_csv", type=Path, help="Input CSV whose rows may be offset.")
+    parser.add_argument("input_csv", type=Path, nargs="?", help="Input CSV whose rows may be offset.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -29,6 +31,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.input_csv = prompt_path(
+        "Enter the CSV path to repair",
+        args.input_csv,
+        must_exist=True,
+        expect_dir=False,
+    )
     output_path = args.output or args.input_csv.with_name(f"FIXED_{args.input_csv.name}")
 
     data_df = pd.read_csv(args.input_csv)

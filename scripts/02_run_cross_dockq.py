@@ -10,6 +10,8 @@ from glob import glob
 from multiprocessing import Pool, cpu_count
 from pathlib import Path
 
+from _cli_helpers import prompt_path
+
 
 FLOAT_PATTERN = r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?"
 
@@ -92,7 +94,7 @@ def process_model_folder(args: tuple[Path, list[Path], Path, Path, Path, int]) -
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("models_dir", type=Path, help="Directory containing model folders.")
+    parser.add_argument("models_dir", type=Path, nargs="?", help="Directory containing model folders.")
     parser.add_argument(
         "--dockq-executable",
         type=Path,
@@ -112,6 +114,20 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.models_dir = prompt_path(
+        "Enter the PRosettaC models directory",
+        args.models_dir,
+        must_exist=True,
+        expect_dir=True,
+    )
+    if not args.dockq_executable.exists():
+        args.dockq_executable = prompt_path(
+            "Enter the path to DockQ.py",
+            None,
+            must_exist=True,
+            expect_dir=False,
+            default=str(args.dockq_executable),
+        )
     model_folders = get_model_folders(args.models_dir)
 
     if not model_folders:

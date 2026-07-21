@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from _cli_helpers import prompt_path
+
 
 def get_excel_engine() -> str:
     return "xlsxwriter" if importlib.util.find_spec("xlsxwriter") else "openpyxl"
@@ -35,7 +37,7 @@ def parse_model_names(filename: str) -> tuple[str, str]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("txt_folder", type=Path, help="Directory containing self-comparison DockQ .txt files.")
+    parser.add_argument("txt_folder", type=Path, nargs="?", help="Directory containing self-comparison DockQ .txt files.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -47,6 +49,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.txt_folder = prompt_path(
+        "Enter the directory containing self-comparison DockQ text files",
+        args.txt_folder,
+        must_exist=True,
+        expect_dir=True,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     txt_files = sorted(args.txt_folder.glob("*.txt"))
 

@@ -11,6 +11,8 @@ import pandas as pd
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 
+from _cli_helpers import prompt_path
+
 
 def build_distance_matrix(average_dockq: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
     split_pairs = average_dockq["key"].str.split("-", expand=True)
@@ -32,7 +34,7 @@ def build_distance_matrix(average_dockq: pd.DataFrame) -> tuple[np.ndarray, list
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("input_csv", type=Path, help="CSV produced by script 07.")
+    parser.add_argument("input_csv", type=Path, nargs="?", help="CSV produced by script 07.")
     parser.add_argument(
         "--full-output",
         type=Path,
@@ -51,6 +53,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.input_csv = prompt_path(
+        "Enter the averaged DockQ CSV path",
+        args.input_csv,
+        must_exist=True,
+        expect_dir=False,
+    )
     args.full_output.parent.mkdir(parents=True, exist_ok=True)
     args.truncated_output.parent.mkdir(parents=True, exist_ok=True)
 

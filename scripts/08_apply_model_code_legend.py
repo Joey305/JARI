@@ -7,11 +7,13 @@ from pathlib import Path
 
 import pandas as pd
 
+from _cli_helpers import prompt_path
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("legend_excel", type=Path, help="Excel workbook containing a 'Legend' sheet.")
-    parser.add_argument("input_csv", type=Path, help="Combined score table to recode.")
+    parser.add_argument("legend_excel", type=Path, nargs="?", help="Excel workbook containing a 'Legend' sheet.")
+    parser.add_argument("input_csv", type=Path, nargs="?", help="Combined score table to recode.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -23,6 +25,18 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.legend_excel = prompt_path(
+        "Enter the legend workbook path",
+        args.legend_excel,
+        must_exist=True,
+        expect_dir=False,
+    )
+    args.input_csv = prompt_path(
+        "Enter the combined score CSV path",
+        args.input_csv,
+        must_exist=True,
+        expect_dir=False,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     legend_df = pd.read_excel(args.legend_excel, sheet_name="Legend", engine="openpyxl")

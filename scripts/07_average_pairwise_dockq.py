@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from _cli_helpers import prompt_path
+
 
 def canonical_key(row: pd.Series) -> str:
     pair_a = f"{row['Model1']}_{row['PDB File 1']}"
@@ -16,7 +18,7 @@ def canonical_key(row: pd.Series) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("input_csv", type=Path, help="Combined score table from script 06.")
+    parser.add_argument("input_csv", type=Path, nargs="?", help="Combined score table from script 06.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -34,6 +36,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.input_csv = prompt_path(
+        "Enter the combined score CSV path",
+        args.input_csv,
+        must_exist=True,
+        expect_dir=False,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_csv(args.input_csv)

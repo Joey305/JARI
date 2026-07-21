@@ -21,6 +21,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from _cli_helpers import prompt_path
+
 
 def modify_pdb_file(file_path: Path) -> None:
     lines = file_path.read_text().splitlines(keepends=True)
@@ -54,6 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "models_dir",
         type=Path,
+        nargs="?",
         help="Directory containing model folders with cluster subdirectories.",
     )
     parser.add_argument(
@@ -66,6 +69,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.models_dir = prompt_path(
+        "Enter the PRosettaC models directory",
+        args.models_dir,
+        must_exist=True,
+        expect_dir=True,
+    )
     pdb_files = iter_cluster_pdbs(args.models_dir, args.pdb_pattern)
 
     if not pdb_files:

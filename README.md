@@ -1,11 +1,11 @@
 # 🧪 JARI-PROTACS
 
 <p align="center">
-  <strong>JARI-PROTACS: A reproducible PyRosettaC-to-DockQ ligand clustering workflow</strong>
+  <strong>JARI-PROTACS: A reproducible PRosettaC-to-DockQ ligand clustering workflow</strong>
 </p>
 
 <p align="center">
-  <em>Structured scripts for preparing PyRosettaC outputs, computing pairwise DockQ similarity, and organizing ligand or pose clusters with DBSCAN and hierarchical clustering.</em>
+  <em>Structured scripts for preparing PRosettaC outputs, computing pairwise DockQ similarity, and organizing ligand or pose clusters with DBSCAN and hierarchical clustering.</em>
 </p>
 
 <p align="center">
@@ -27,6 +27,9 @@
   <a href="https://github.com/bjornwallner/DockQ">
     <img src="https://img.shields.io/badge/Dependency-DockQ-informational?style=for-the-badge&logo=python" alt="DockQ dependency">
   </a>
+  <a href="https://github.com/LondonLab/PRosettaC">
+    <img src="https://img.shields.io/badge/Upstream-PRosettaC-black?style=for-the-badge&logo=github" alt="PRosettaC repository">
+  </a>
   <a href="./requirements.txt">
     <img src="https://img.shields.io/badge/Python-Requirements-green?style=for-the-badge&logo=pypi" alt="Python requirements">
   </a>
@@ -41,11 +44,11 @@
 
 ## 🚀 Overview
 
-**JARI-PROTACS** is a cleaned and reorganized analysis repository for processing **PyRosettaC** results into a reproducible **DockQ-based clustering workflow**.
+**JARI-PROTACS** is a cleaned and reorganized analysis repository for processing **PRosettaC** results into a reproducible **DockQ-based clustering workflow**.
 
 The project is designed for cases where you want to:
 
-- prepare PyRosettaC-generated PDBs for DockQ compatibility
+- prepare PRosettaC-generated PDBs for DockQ compatibility
 - compare model clusters across ligands or linker designs
 - compute pairwise DockQ, iRMS, and LRMS values
 - aggregate those comparisons into a unified dataset
@@ -54,6 +57,8 @@ The project is designed for cases where you want to:
 - visualize structural grouping with **UMAP** and **hierarchical dendrograms**
 
 This repository began as a long-running internal project with several legacy scripts from different development phases. It has now been reorganized into a chronological pipeline intended to be easier to understand, run, and share publicly.
+
+It complements the original upstream **PRosettaC** project rather than replacing it. If you need the source workflow that generates the model results used here, see [LondonLab/PRosettaC](https://github.com/LondonLab/PRosettaC).
 
 ---
 
@@ -97,7 +102,7 @@ This repository began as a long-running internal project with several legacy scr
 
 ## ⚡ Quick Start
 
-If you already have a folder of PyRosettaC model outputs and a working DockQ installation, the shortest path through the workflow is:
+If you already have a folder of PRosettaC model outputs and a working DockQ installation, the shortest path through the workflow is:
 
 ```bash
 python3 -m venv .venv
@@ -119,6 +124,8 @@ python scripts/12_plot_dendrogram.py results/tables/averaged_dockq_scores.csv
 
 That sequence will take you from prepared PDB files to merged scoring tables and final clustering figures.
 
+All core scripts also support an interactive console mode. If you run a script without the required input path arguments, it will prompt you in the terminal instead of exiting immediately.
+
 ---
 
 <a id="workflow-overview"></a>
@@ -129,7 +136,7 @@ The repository is organized as a numbered pipeline so the execution order is exp
 
 | Stage | Script | Purpose |
 |---|---|---|
-| 01 | `01_prepare_pdbs_for_dockq.py` | Adjust chain and residue formatting so PyRosettaC outputs are DockQ-compatible |
+| 01 | `01_prepare_pdbs_for_dockq.py` | Adjust chain and residue formatting so PRosettaC outputs are DockQ-compatible |
 | 02 | `02_run_cross_dockq.py` | Compare models across different folders or ligand/linker conditions |
 | 03 | `03_run_self_dockq.py` | Compare models within the same folder for self-similarity scoring |
 | 04 | `04_export_cross_scores_to_excel.py` | Convert cross-model text reports into a workbook |
@@ -207,7 +214,7 @@ your_models/
 In practical terms:
 
 - each top-level model folder usually corresponds to a ligand, linker, design, or pose family
-- each `cluster*` folder represents a PyRosettaC cluster
+- each `cluster*` folder represents a PRosettaC cluster
 - each PDB inside a cluster is used for pairwise DockQ scoring
 
 ---
@@ -334,7 +341,7 @@ After the workflow is complete, the main analysis artifacts are:
 - UMAP scatterplots for cluster structure
 - full and truncated hierarchical dendrograms
 
-These outputs are intended to support ligand-family inspection, linker comparison, and pose similarity interpretation across PyRosettaC result sets.
+These outputs are intended to support ligand-family inspection, linker comparison, and pose similarity interpretation across PRosettaC result sets.
 
 ---
 
@@ -394,10 +401,10 @@ Current state:
 - the core scripts are renamed in chronological order
 - the README and repository layout are now public-facing
 - the cleaned scripts compile successfully
-- full end-to-end execution still depends on real PyRosettaC input folders and an available DockQ installation
+- full end-to-end execution still depends on real PRosettaC input folders and an available DockQ installation
 
 ---
 
 ## Contact
 
-For workflow questions, repository cleanup follow-up, or collaboration around PyRosettaC-based ligand clustering, update this section with the preferred lab or project contact before broad public release.
+For workflow questions, repository cleanup follow-up, or collaboration around PRosettaC-based ligand clustering, update this section with the preferred lab or project contact before broad public release.

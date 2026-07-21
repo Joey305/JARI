@@ -8,6 +8,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from _cli_helpers import prompt_path
+
 
 def normalize_sheet_name(name: str) -> str:
     name = re.sub(r"_self_scores$", "", name)
@@ -18,8 +20,8 @@ def normalize_sheet_name(name: str) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("self_workbook", type=Path, help="Workbook generated from self-comparison scores.")
-    parser.add_argument("cross_workbook", type=Path, help="Workbook generated from cross-comparison scores.")
+    parser.add_argument("self_workbook", type=Path, nargs="?", help="Workbook generated from self-comparison scores.")
+    parser.add_argument("cross_workbook", type=Path, nargs="?", help="Workbook generated from cross-comparison scores.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -31,6 +33,18 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.self_workbook = prompt_path(
+        "Enter the self-comparison workbook path",
+        args.self_workbook,
+        must_exist=True,
+        expect_dir=False,
+    )
+    args.cross_workbook = prompt_path(
+        "Enter the cross-comparison workbook path",
+        args.cross_workbook,
+        must_exist=True,
+        expect_dir=False,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     self_xl = pd.ExcelFile(args.self_workbook, engine="openpyxl")

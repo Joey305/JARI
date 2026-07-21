@@ -7,11 +7,13 @@ from pathlib import Path
 
 import pandas as pd
 
+from _cli_helpers import prompt_path
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("legend_excel", type=Path, help="Excel workbook containing a 'CODEDPDB' sheet.")
-    parser.add_argument("input_csv", type=Path, help="CSV produced by script 08.")
+    parser.add_argument("legend_excel", type=Path, nargs="?", help="Excel workbook containing a 'CODEDPDB' sheet.")
+    parser.add_argument("input_csv", type=Path, nargs="?", help="CSV produced by script 08.")
     parser.add_argument(
         "--output",
         type=Path,
@@ -27,6 +29,18 @@ def map_to_pdb_coded(row: pd.Series, mapping_dict: dict[tuple[str, str], str], m
 
 def main() -> None:
     args = parse_args()
+    args.legend_excel = prompt_path(
+        "Enter the PDB code legend workbook path",
+        args.legend_excel,
+        must_exist=True,
+        expect_dir=False,
+    )
+    args.input_csv = prompt_path(
+        "Enter the coded CSV path from script 08",
+        args.input_csv,
+        must_exist=True,
+        expect_dir=False,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     codedpdb_df = pd.read_excel(args.legend_excel, sheet_name="CODEDPDB", engine="openpyxl")

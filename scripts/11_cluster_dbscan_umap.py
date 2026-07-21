@@ -12,6 +12,8 @@ import umap
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import MinMaxScaler
 
+from _cli_helpers import prompt_path
+
 
 def build_distance_matrix(average_dockq: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
     split_pairs = average_dockq["key"].str.split("-", expand=True)
@@ -43,7 +45,7 @@ def fallback_embedding(num_points: int) -> np.ndarray:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("input_csv", type=Path, help="CSV produced by script 07.")
+    parser.add_argument("input_csv", type=Path, nargs="?", help="CSV produced by script 07.")
     parser.add_argument("--eps", type=float, default=0.09, help="DBSCAN eps parameter.")
     parser.add_argument("--min-samples", type=int, default=1, help="DBSCAN min_samples parameter.")
     parser.add_argument(
@@ -69,6 +71,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    args.input_csv = prompt_path(
+        "Enter the averaged DockQ CSV path",
+        args.input_csv,
+        must_exist=True,
+        expect_dir=False,
+    )
     args.cluster_output.parent.mkdir(parents=True, exist_ok=True)
     args.plot_output.parent.mkdir(parents=True, exist_ok=True)
 
