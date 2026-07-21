@@ -1,7 +1,9 @@
 # 🧪 JARI-PROTACS
 
+> **JARI**: **J**oint **A**nalysis for **R**eproducible **I**nterface clustering
+
 <p align="center">
-  <strong>JARI-PROTACS: A reproducible PRosettaC-to-DockQ ligand clustering workflow</strong>
+  <strong>JARI-PROTACS: Joint Analysis for Reproducible Interface clustering in PRosettaC-derived ternary complexes</strong>
 </p>
 
 <p align="center">
