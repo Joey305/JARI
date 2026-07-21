@@ -11,6 +11,7 @@ import pandas as pd
 
 def normalize_sheet_name(name: str) -> str:
     name = re.sub(r"_self_scores$", "", name)
+    name = re.sub(r"_dockq_high_scores$", "", name)
     name = re.sub(r"_p\d+$", "", name)
     return name
 
@@ -50,11 +51,20 @@ def main() -> None:
             continue
 
         combined_df = self_xl.parse(self_sheet_name)
+        if combined_df.empty and not matching_cross_sheets:
+            continue
         for cross_sheet_name in matching_cross_sheets:
             cross_df = cross_xl.parse(cross_sheet_name)
-            combined_df = pd.concat([combined_df, cross_df], ignore_index=True)
+            if cross_df.empty:
+                continue
+            if combined_df.empty:
+                combined_df = cross_df.copy()
+            else:
+                combined_df = pd.concat([combined_df, cross_df], ignore_index=True)
             print(f"Merged {self_sheet_name} with {cross_sheet_name}")
 
+        if combined_df.empty:
+            continue
         merged_frames.append(combined_df)
 
     if not merged_frames:

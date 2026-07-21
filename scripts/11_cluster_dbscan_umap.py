@@ -31,6 +31,16 @@ def build_distance_matrix(average_dockq: pd.DataFrame) -> tuple[np.ndarray, list
     return distance_matrix, list(unique_models)
 
 
+def fallback_embedding(num_points: int) -> np.ndarray:
+    if num_points == 0:
+        return np.empty((0, 2))
+    if num_points == 1:
+        return np.array([[0.5, 0.5]])
+    x_coords = np.linspace(0.0, 1.0, num_points)
+    y_coords = np.zeros(num_points)
+    return np.column_stack([x_coords, y_coords])
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input_csv", type=Path, help="CSV produced by script 07.")
@@ -64,6 +74,10 @@ def main() -> None:
 
     average_dockq = pd.read_csv(args.input_csv)
     distance_matrix, unique_models = build_distance_matrix(average_dockq)
+    num_models = len(unique_models)
+
+    if num_models == 0:
+        raise SystemExit("No model pairs were available for clustering.")
 
     dbscan = DBSCAN(eps=args.eps, min_samples=args.min_samples, metric="precomputed")
     cluster_labels = dbscan.fit_predict(distance_matrix)
@@ -72,9 +86,22 @@ def main() -> None:
     cluster_assignments.to_csv(args.cluster_output, index=False)
     print(f"Wrote cluster assignments to {args.cluster_output}")
 
-    reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, metric="precomputed", random_state=42)
-    embedding = reducer.fit_transform(distance_matrix)
-    embedding_scaled = MinMaxScaler().fit_transform(embedding)
+    if num_models < 3:
+        embedding_scaled = fallback_embedding(num_models)
+    else:
+        n_neighbors = min(15, max(2, num_models - 1))
+        try:
+            reducer = umap.UMAP(
+                n_neighbors=n_neighbors,
+                min_dist=0.1,
+                metric="precomputed",
+                random_state=42,
+            )
+            embedding = reducer.fit_transform(distance_matrix)
+            embedding_scaled = MinMaxScaler().fit_transform(embedding)
+        except ValueError as exc:
+            print(f"UMAP fallback triggered: {exc}")
+            embedding_scaled = fallback_embedding(num_models)
 
     cluster_sizes = cluster_assignments["Cluster"].value_counts()
     visible_clusters = [

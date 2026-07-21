@@ -3,9 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 from pathlib import Path
 
 import pandas as pd
+
+
+def get_excel_engine() -> str:
+    return "xlsxwriter" if importlib.util.find_spec("xlsxwriter") else "openpyxl"
+
+
+def normalize_sheet_base_name(filename: str) -> str:
+    return filename.replace("_self_scores", "")
 
 
 def write_to_excel(df: pd.DataFrame, writer: pd.ExcelWriter, sheet_name: str) -> None:
@@ -20,11 +29,8 @@ def write_to_excel(df: pd.DataFrame, writer: pd.ExcelWriter, sheet_name: str) ->
 
 
 def parse_model_names(filename: str) -> tuple[str, str]:
-    stem = filename.replace("_self_scores", "")
-    parts = stem.split("_")
-    model1 = parts[0] if parts else ""
-    model2 = parts[1] if len(parts) > 1 else model1
-    return model1, model2
+    model_name = filename.replace("_self_scores", "")
+    return model_name, model_name
 
 
 def parse_args() -> argparse.Namespace:
@@ -47,13 +53,13 @@ def main() -> None:
     if not txt_files:
         raise SystemExit(f"No .txt files found in {args.txt_folder}")
 
-    with pd.ExcelWriter(args.output, engine="xlsxwriter") as writer:
+    with pd.ExcelWriter(args.output, engine=get_excel_engine()) as writer:
         for txt_file in txt_files:
             df = pd.read_csv(txt_file, delimiter="\t")
             model1, model2 = parse_model_names(txt_file.stem)
             df["Model1"] = model1
             df["Model2"] = model2
-            write_to_excel(df, writer, txt_file.stem[:30])
+            write_to_excel(df, writer, normalize_sheet_base_name(txt_file.stem)[:31])
             print(f"Processed {txt_file.name}")
 
     print(f"Wrote workbook to {args.output}")

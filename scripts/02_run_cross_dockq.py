@@ -14,8 +14,14 @@ from pathlib import Path
 FLOAT_PATTERN = r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?"
 
 
-def count_clusters(directory_path: Path) -> int:
-    return sum(1 for path in directory_path.iterdir() if path.is_dir() and path.name.startswith("cluster"))
+def resolve_model_results_dir(model_dir: Path) -> Path:
+    results_dir = model_dir / "Results"
+    return results_dir if results_dir.is_dir() else model_dir
+
+
+def get_cluster_dirs(model_dir: Path) -> list[Path]:
+    results_dir = resolve_model_results_dir(model_dir)
+    return sorted(path for path in results_dir.iterdir() if path.is_dir() and path.name.startswith("cluster"))
 
 
 def get_pdb_files(directory_path: Path) -> list[Path]:
@@ -54,20 +60,17 @@ def process_model_folder(args: tuple[Path, list[Path], Path, Path, Path, int]) -
     output_file = output_dir / f"{model_folder.name}_dockq_high_scores.txt"
 
     with output_file.open("w") as handle:
-        handle.write("Model1\tCluster1\tPDB1\tModel2\tCluster2\tPDB2\tDockQ\tiRMS\tLRMS\n")
+        handle.write("Model1\tCluster1\tPDB File 1\tModel2\tCluster2\tPDB File 2\tDockQ\tiRMS\tLRMS\n")
 
         for other_model_folder in model_folders:
             if model_folder == other_model_folder:
                 continue
 
-            model_cluster_count = count_clusters(models_dir / model_folder.name)
-            other_cluster_count = count_clusters(models_dir / other_model_folder.name)
+            model_cluster_dirs = get_cluster_dirs(models_dir / model_folder.name)
+            other_cluster_dirs = get_cluster_dirs(models_dir / other_model_folder.name)
 
-            for model_cluster_num in range(1, model_cluster_count + 1):
-                for other_cluster_num in range(1, other_cluster_count + 1):
-                    model_cluster_path = models_dir / model_folder.name / f"cluster{model_cluster_num}"
-                    other_cluster_path = models_dir / other_model_folder.name / f"cluster{other_cluster_num}"
-
+            for model_cluster_path in model_cluster_dirs:
+                for other_cluster_path in other_cluster_dirs:
                     for model_pdb_file in get_pdb_files(model_cluster_path):
                         for other_model_pdb_file in get_pdb_files(other_cluster_path):
                             dockq, irms, lrms = execute_dockq_command(
@@ -79,8 +82,8 @@ def process_model_folder(args: tuple[Path, list[Path], Path, Path, Path, int]) -
                             if dockq is None:
                                 continue
                             line = (
-                                f"{model_folder.name}\tcluster{model_cluster_num}\t{model_pdb_file.name}\t"
-                                f"{other_model_folder.name}\tcluster{other_cluster_num}\t{other_model_pdb_file.name}\t"
+                                f"{model_folder.name}\t{model_cluster_path.name}\t{model_pdb_file.name}\t"
+                                f"{other_model_folder.name}\t{other_cluster_path.name}\t{other_model_pdb_file.name}\t"
                                 f"{dockq}\t{irms}\t{lrms}\n"
                             )
                             handle.write(line)

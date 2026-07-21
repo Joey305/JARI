@@ -14,8 +14,14 @@ from pathlib import Path
 FLOAT_PATTERN = r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?"
 
 
-def count_clusters(directory_path: Path) -> int:
-    return sum(1 for path in directory_path.iterdir() if path.is_dir() and path.name.startswith("cluster"))
+def resolve_model_results_dir(model_dir: Path) -> Path:
+    results_dir = model_dir / "Results"
+    return results_dir if results_dir.is_dir() else model_dir
+
+
+def get_cluster_dirs(model_dir: Path) -> list[Path]:
+    results_dir = resolve_model_results_dir(model_dir)
+    return sorted(path for path in results_dir.iterdir() if path.is_dir() and path.name.startswith("cluster"))
 
 
 def get_pdb_files(directory_path: Path) -> list[Path]:
@@ -53,22 +59,21 @@ def process_model_folder(args: tuple[Path, Path, Path, Path, int]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / f"{model_folder.name}_self_scores.txt"
     model_root = models_dir / model_folder.name
-    model_cluster_count = count_clusters(model_root)
+    cluster_dirs = get_cluster_dirs(model_root)
 
     with output_file.open("w") as handle:
-        handle.write("Cluster1\tPDB1\tCluster2\tPDB2\tDockQ\tiRMS\tLRMS\n")
+        handle.write("Cluster1\tPDB File 1\tCluster2\tPDB File 2\tDockQ\tiRMS\tLRMS\n")
 
-        for cluster_num1 in range(1, model_cluster_count + 1):
-            cluster_path1 = model_root / f"cluster{cluster_num1}"
+        for cluster_index1, cluster_path1 in enumerate(cluster_dirs):
             pdb_files1 = get_pdb_files(cluster_path1)
 
-            for cluster_num2 in range(cluster_num1, model_cluster_count + 1):
-                cluster_path2 = model_root / f"cluster{cluster_num2}"
-                pdb_files2 = get_pdb_files(cluster_path2) if cluster_num1 != cluster_num2 else pdb_files1
+            for cluster_index2 in range(cluster_index1, len(cluster_dirs)):
+                cluster_path2 = cluster_dirs[cluster_index2]
+                pdb_files2 = get_pdb_files(cluster_path2) if cluster_index1 != cluster_index2 else pdb_files1
 
                 for pdb_file1 in pdb_files1:
                     for pdb_file2 in pdb_files2:
-                        if cluster_num1 == cluster_num2 and pdb_file1 == pdb_file2:
+                        if cluster_index1 == cluster_index2 and pdb_file1 == pdb_file2:
                             continue
 
                         dockq, irms, lrms = execute_dockq_command(dockq_executable, pdb_file1, pdb_file2, timeout)
@@ -76,7 +81,7 @@ def process_model_folder(args: tuple[Path, Path, Path, Path, int]) -> None:
                             continue
 
                         line = (
-                            f"cluster{cluster_num1}\t{pdb_file1.name}\tcluster{cluster_num2}\t{pdb_file2.name}\t"
+                            f"{cluster_path1.name}\t{pdb_file1.name}\t{cluster_path2.name}\t{pdb_file2.name}\t"
                             f"{dockq}\t{irms}\t{lrms}\n"
                         )
                         handle.write(line)

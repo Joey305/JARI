@@ -3,9 +3,18 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 from pathlib import Path
 
 import pandas as pd
+
+
+def get_excel_engine() -> str:
+    return "xlsxwriter" if importlib.util.find_spec("xlsxwriter") else "openpyxl"
+
+
+def normalize_sheet_base_name(filename: str) -> str:
+    return filename.replace("_dockq_high_scores", "")
 
 
 def write_to_excel(df: pd.DataFrame, writer: pd.ExcelWriter, base_sheet_name: str) -> None:
@@ -42,10 +51,10 @@ def main() -> None:
     if not txt_files:
         raise SystemExit(f"No .txt files found in {args.txt_folder}")
 
-    with pd.ExcelWriter(args.output, engine="xlsxwriter") as writer:
+    with pd.ExcelWriter(args.output, engine=get_excel_engine()) as writer:
         for index, txt_file in enumerate(txt_files, start=1):
             df = pd.read_csv(txt_file, delimiter="\t")
-            write_to_excel(df, writer, txt_file.stem[:31])
+            write_to_excel(df, writer, normalize_sheet_base_name(txt_file.stem)[:31])
             print(f"Processed {index} of {len(txt_files)}: {txt_file.name}")
 
     print(f"Wrote workbook to {args.output}")

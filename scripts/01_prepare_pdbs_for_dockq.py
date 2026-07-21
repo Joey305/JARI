@@ -35,10 +35,16 @@ def modify_pdb_file(file_path: Path) -> None:
             handle.write(line)
 
 
+def resolve_model_results_dir(model_dir: Path) -> Path:
+    results_dir = model_dir / "Results"
+    return results_dir if results_dir.is_dir() else model_dir
+
+
 def iter_cluster_pdbs(models_dir: Path, pdb_pattern: str) -> list[Path]:
     pdb_files: list[Path] = []
-    for cluster_dir in sorted(models_dir.glob("*/cluster*")):
-        if cluster_dir.is_dir():
+    for model_dir in sorted(path for path in models_dir.iterdir() if path.is_dir()):
+        results_dir = resolve_model_results_dir(model_dir)
+        for cluster_dir in sorted(path for path in results_dir.iterdir() if path.is_dir() and path.name.startswith("cluster")):
             pdb_files.extend(sorted(cluster_dir.glob(pdb_pattern)))
     return pdb_files
 
