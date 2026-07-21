@@ -409,4 +409,6 @@ Current state:
 
 ## Contact
 
-For workflow questions, repository cleanup follow-up, or collaboration around PRosettaC-based ligand clustering, update this section with the preferred lab or project contact before broad public release.
+For workflow questions, repository cleanup follow-up, or collaboration around PRosettaC-based ligand clustering, contact Jason M. Schulz at `jmschulz@med.miami.edu`.
+
+Schurer Lab: [schurerlab.org](https://schurerlab.org)
