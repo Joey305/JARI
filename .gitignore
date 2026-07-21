@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# macOS
+.DS_Store
+
+# Notebook and editor noise
+.ipynb_checkpoints/
+
+# Generated analysis outputs
+results/
+*.xlsx
+*.csv
+*.png
+
+# Keep source-controlled examples or metadata if added later
+!README.md
+!requirements.txt
