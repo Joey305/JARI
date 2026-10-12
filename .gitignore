@@ -17,9 +17,44 @@ env/
 
 # Generated analysis outputs
 results/
+outputs/
 *.xlsx
 *.csv
 *.png
+
+# Local research data and working material (never publish)
+/Pomalidomide-Structures/
+/Thesis-JARI/
+/VHL-Analysis/
+/VHL-PROTACS/
+/VHL-Structures/
+/VHL_DOCKQ_PARALLEL/
+/VHL_SELF_SCORE/
+/audit/
+/docx_work/
+/tmp/
+
+# Local archives, dependencies, and one-off private tooling
+/node_modules
+/*.zip
+/*.tar.gz
+/build_ptc_catalog.py
+/build_ptc_catalog.mjs
+/hpc/
+/scripts/analyze_crbn_target_sensitivity.py
+/scripts/append_vhl_jari_appendix.py
+/scripts/assemble_ch3_08_crbn.py
+/scripts/build_crbn_code_package.py
+/scripts/build_vhl_family_dictionary.py
+/scripts/export_ch3_jari_figures.py
+/scripts/recode_figure_3_8_vhl_codes.py
+/scripts/sweep_crbn_legacy_figure_match.py
+/scripts/update_dissertation_crbn_codes.py
+
+# Published example outputs
+!VHL_top_cluster_composition_network.png
+!VHL_top_cluster_composition_network_composition.csv
+!VHL_top_cluster_composition_network_edges.csv
 
 # Keep source-controlled examples or metadata if added later
 !README.md

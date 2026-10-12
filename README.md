@@ -119,9 +119,14 @@ python scripts/04_export_cross_scores_to_excel.py results/cross_scores
 python scripts/05_export_self_scores_to_excel.py results/self_scores
 python scripts/06_merge_score_workbooks.py results/workbooks/self_scores.xlsx results/workbooks/cross_scores.xlsx
 python scripts/07_average_pairwise_dockq.py results/tables/all_data_combined.csv
+# For large score archives, this faster alternative avoids Excel intermediates:
+# python scripts/13_average_score_archives.py self_scores.zip cross_scores.zip
 
 python scripts/11_cluster_dbscan_umap.py results/tables/averaged_dockq_scores.csv
 python scripts/12_plot_dendrogram.py results/tables/averaged_dockq_scores.csv
+python scripts/14_plot_top_cluster_composition.py \
+  --cluster-assignments results/tables/dbscan_cluster_assignments.csv \
+  --averaged-scores results/tables/averaged_dockq_scores.csv
 ```
 
 That sequence will take you from prepared PDB files to merged scoring tables and final clustering figures.
@@ -150,6 +155,8 @@ The repository is organized as a numbered pipeline so the execution order is exp
 | 10 | `10_fix_shifted_coded_rows.py` | Repair left-shifted coded CSV rows when needed |
 | 11 | `11_cluster_dbscan_umap.py` | Cluster structures with DBSCAN and visualize with UMAP |
 | 12 | `12_plot_dendrogram.py` | Generate hierarchical clustering dendrograms |
+| 13 | `13_average_score_archives.py` | Stream score text folders or ZIP archives directly into averaged DockQ scores |
+| 14 | `14_plot_top_cluster_composition.py` | Plot the family composition and high-similarity connections of a selected DBSCAN cluster |
 
 The main structural metric used downstream is:
 

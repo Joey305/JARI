@@ -25,10 +25,13 @@ def build_distance_matrix(average_dockq: pd.DataFrame) -> tuple[np.ndarray, list
     for _, row in average_dockq.iterrows():
         idx1 = model_to_index[row["Model_PDB1"]]
         idx2 = model_to_index[row["Model_PDB2"]]
+        if idx1 == idx2:
+            continue
         distance = 1 - row["Average_DockQ"]
         distance_matrix[idx1, idx2] = distance
         distance_matrix[idx2, idx1] = distance
 
+    np.fill_diagonal(distance_matrix, 0)
     return distance_matrix, list(unique_models)
 
 

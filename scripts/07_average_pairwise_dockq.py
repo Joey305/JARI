@@ -10,6 +10,14 @@ import pandas as pd
 from _cli_helpers import prompt_path
 
 
+PDB1_ALIASES = ("PDB File 1", "PDB1")
+PDB2_ALIASES = ("PDB File 2", "PDB2")
+
+
+def first_existing(columns: pd.Index, aliases: tuple[str, ...]) -> str | None:
+    return next((alias for alias in aliases if alias in columns), None)
+
+
 def canonical_key(row: pd.Series) -> str:
     pair_a = f"{row['Model1']}_{row['PDB File 1']}"
     pair_b = f"{row['Model2']}_{row['PDB File 2']}"
@@ -45,10 +53,21 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.read_csv(args.input_csv)
+    pdb1_col = first_existing(df.columns, PDB1_ALIASES)
+    pdb2_col = first_existing(df.columns, PDB2_ALIASES)
+    if pdb1_col:
+        df = df.rename(columns={pdb1_col: "PDB File 1"})
+    if pdb2_col:
+        df = df.rename(columns={pdb2_col: "PDB File 2"})
+
     required_columns = ["Model1", "PDB File 1", "Model2", "PDB File 2", "DockQ"]
     missing_columns = [column for column in required_columns if column not in df.columns]
     if missing_columns:
-        raise SystemExit(f"Missing required columns: {', '.join(missing_columns)}")
+        raise SystemExit(
+            "Missing required columns: "
+            + ", ".join(missing_columns)
+            + ". PDB columns may be named either 'PDB File 1'/'PDB File 2' or 'PDB1'/'PDB2'."
+        )
 
     valid_pair_mask = df[required_columns[:-1]].notna().all(axis=1)
     unpaired_df = df.loc[~valid_pair_mask].copy()
