@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Triton entry point for a directory of PRosettaC result ZIPs.
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: jari-run ZIP_DIRECTORY [--name RUN_NAME] [--queue QUEUE] [--walltime HOURS:MINUTES] [--cross-mode model|pair]
+
+Stages every ZIP in ZIP_DIRECTORY and submits two restartable DockQ jobs per
+PRosettaC model. Cross mode "model" submits one cross job per model; "pair"
+submits one directed A-to-B job per ordered model pair. ZIP names may be long:
+the run assigns short model keys (M001, M002, ...) and records the original
+labels in models/archive_manifest.tsv.
+EOF
+}
+
+[[ $# -ge 1 ]] || { usage >&2; exit 2; }
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  usage
+  exit 0
+fi
+zip_dir=$1
+shift
+run_name=$(basename "${zip_dir%/}")
+queue=normal
+walltime=240:00
+cross_mode=model
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --name) run_name=${2:?Missing value for --name}; shift 2 ;;
+    --queue) queue=${2:?Missing value for --queue}; shift 2 ;;
+    --walltime) walltime=${2:?Missing value for --walltime}; shift 2 ;;
+    --cross-mode) cross_mode=${2:?Missing value for --cross-mode}; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown option: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+[[ -d "$zip_dir" ]] || { echo "ZIP directory not found: $zip_dir" >&2; exit 1; }
+[[ "$run_name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || { echo "Run name must be path-safe." >&2; exit 2; }
+[[ "$cross_mode" == model || "$cross_mode" == pair ]] || { echo "--cross-mode must be model or pair." >&2; exit 2; }
+
+script_path=$(readlink -f "${BASH_SOURCE[0]}")
+repo_source=$(cd "$(dirname "$script_path")/../.." && pwd)
+compute_home="/nethome/${USER:?USER is not set}"
+repo_root="$compute_home/$(basename "$repo_source")"
+[[ -d "$repo_root" ]] || { echo "Compute-visible repository not found: $repo_root" >&2; exit 1; }
+dockq="$repo_root/hpc/triton/run_dockq.sh"
+[[ -x "$dockq" ]] || { echo "DockQ not found at $dockq" >&2; exit 1; }
+
+run_root="$compute_home/JARI-runs/$run_name"
+models_dir="$run_root/models"
+results_dir="$run_root/results"
+mkdir -p "$run_root"
+if [[ -f "$run_root/run_config.txt" ]] && ! grep -qx "cross_mode=$cross_mode" "$run_root/run_config.txt"; then
+  echo "Run $run_name already exists with a different cross mode. Use --name for a new run." >&2
+  exit 1
+fi
+"$repo_source/hpc/triton/stage_prosettac_archives.sh" "$zip_dir" "$models_dir"
+
+cat > "$run_root/run_config.txt" <<EOF
+zip_directory=$(readlink -f "$zip_dir")
+queue=$queue
+walltime=$walltime
+dockq=$dockq
+mapping=AB:AB
+comparison_workers=1
+cross_mode=$cross_mode
+EOF
+
+export JARI_MODELS_DIR="$models_dir"
+export JARI_RESULTS_DIR="$results_dir"
+export DOCKQ_EXECUTABLE="$dockq"
+export LSF_QUEUE="$queue"
+export LSF_WALLTIME="$walltime"
+export JARI_CROSS_MODE="$cross_mode"
+"$repo_source/hpc/triton/submit_jari_individual_jobs.sh"
+
+model_count=$(wc -l < "$models_dir/model_manifest.txt")
+if [[ "$cross_mode" == pair ]]; then
+  cross_count=$((model_count * (model_count - 1)))
+else
+  cross_count=$model_count
+fi
+echo "Submitted $model_count self jobs and $cross_count cross jobs (mode: $cross_mode)."
+echo "Run directory: $run_root"

@@ -40,7 +40,6 @@ outputs/
 /*.tar.gz
 /build_ptc_catalog.py
 /build_ptc_catalog.mjs
-/hpc/
 /scripts/analyze_crbn_target_sensitivity.py
 /scripts/append_vhl_jari_appendix.py
 /scripts/assemble_ch3_08_crbn.py

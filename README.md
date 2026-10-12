@@ -93,6 +93,7 @@ It complements the original upstream **PRosettaC** project rather than replacing
 - [Expected Input Structure](#expected-input-structure)
 - [Requirements](#requirements)
 - [Core Pipeline](#core-pipeline)
+- [Triton / LSF execution](#triton--lsf-execution)
 - [Clustering Outputs](#clustering-outputs)
 - [Optional Coding and Legend Steps](#optional-coding-and-legend-steps)
 - [Archived Material](#archived-material)
@@ -188,6 +189,9 @@ JARI-PROTACS/
 │   ├── 10_fix_shifted_coded_rows.py
 │   ├── 11_cluster_dbscan_umap.py
 │   └── 12_plot_dendrogram.py
+├── hpc/
+│   ├── triton/       # LSF launchers, including directed 1×1 comparisons
+│   └── pegasus/      # Pegasus/LSF submission helper
 └── archive/
     ├── legacy/
     └── experimental/
@@ -195,6 +199,8 @@ JARI-PROTACS/
 
 `scripts/` contains the cleaned public-facing workflow.  
 `archive/` preserves older helper scripts and prototype analyses that were retained for reference but are not part of the recommended primary run path.
+
+`hpc/` contains optional scheduler helpers. They are only needed when running the scoring stage on a configured HPC system; see the Triton section below.
 
 ---
 
@@ -329,6 +335,34 @@ Outputs:
 python scripts/11_cluster_dbscan_umap.py results/tables/averaged_dockq_scores.csv
 python scripts/12_plot_dendrogram.py results/tables/averaged_dockq_scores.csv
 ```
+
+## 🖥️ Triton / LSF Execution
+
+The reusable Triton launcher stages a directory of PRosettaC result ZIPs, assigns short scheduler-safe model keys, and submits restartable DockQ jobs through LSF. It expects a Triton-visible clone of this repository, a Python environment at `.venv`, and the site `bsub` command.
+
+```bash
+cd /path/to/JARI-PROTACS
+source .venv/bin/activate
+
+# Standard mode: one cross-scoring job per model. Each job compares its model
+# against every other model, plus one self-scoring job per model.
+hpc/triton/jari-run /path/to/result-zips --name my-run
+
+# Directed 1×1 mode: one cross-scoring job for every ordered model pair
+# (A→B and B→A are independent jobs), plus the same self-scoring jobs.
+hpc/triton/jari-run-single /path/to/result-zips --name my-run-pairs
+```
+
+Use standard mode when each model's full set of cross comparisons belongs in one job. Use directed 1×1 mode when you need independent A→B tasks for scheduling, failure recovery, or fine-grained progress tracking. Both modes write to `~/JARI-runs/<run-name>/`; output files are resumable, so rerunning the submission skips completed rows by default.
+
+The exact queue, wall-time policy, Python module, and compute-visible filesystem path are site-specific. Pass them explicitly when needed:
+
+```bash
+hpc/triton/jari-run-single /path/to/result-zips \
+  --name my-run-pairs --queue normal --walltime 240:00
+```
+
+For Triton setup, archive staging details, and the legacy Pomalidomide-specific submission helpers, see [`hpc/triton/README.md`](hpc/triton/README.md).
 
 Outputs:
 
