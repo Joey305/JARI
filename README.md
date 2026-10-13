@@ -11,6 +11,10 @@
 </p>
 
 <p align="center">
+  <a href="./LICENSE">MIT License</a> · <a href="./CITATION.cff">Citation metadata</a> · <a href="#testing-and-reproducibility">Smoke-tested core workflow</a>
+</p>
+
+<p align="center">
   <a href="#quick-start">
     <img src="https://img.shields.io/badge/Get%20Started-Quick%20Start-blue?style=for-the-badge&logo=python" alt="Quick start">
   </a>
@@ -93,6 +97,9 @@ It complements the original upstream **PRosettaC** project rather than replacing
 - [Expected Input Structure](#expected-input-structure)
 - [Requirements](#requirements)
 - [Core Pipeline](#core-pipeline)
+- [Testing and reproducibility](#testing-and-reproducibility)
+- [Data availability](#data-availability)
+- [Citation](#citation)
 - [Triton / LSF execution](#triton--lsf-execution)
 - [Clustering Outputs](#clustering-outputs)
 - [Optional Coding and Legend Steps](#optional-coding-and-legend-steps)
@@ -112,7 +119,9 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-python scripts/01_prepare_pdbs_for_dockq.py /path/to/your_models
+# With DockQ v2, start with the unmodified PRosettaC PDBs. Run step 01 only
+# when a compatibility check shows that its legacy normalization is required.
+# python scripts/01_prepare_pdbs_for_dockq.py /path/to/your_models
 python scripts/02_run_cross_dockq.py /path/to/your_models --dockq-executable /path/to/DockQ.py
 python scripts/03_run_self_dockq.py /path/to/your_models --dockq-executable /path/to/DockQ.py
 
@@ -267,13 +276,13 @@ The clustering and visualization steps rely on:
 
 ## 🧬 Core Pipeline
 
-### 1. Prepare DockQ-compatible PDBs
+### 1. Optional legacy PDB normalization
 
 ```bash
 python scripts/01_prepare_pdbs_for_dockq.py /path/to/your_models
 ```
 
-This step updates chain/residue formatting so the downstream DockQ comparisons behave consistently.
+For DockQ v2, use the unmodified PRosettaC PDBs by default. Run this legacy normalization step only when a controlled compatibility check shows that your input or DockQ version requires it; preserve an unmodified copy of the source models.
 
 ### 2. Run cross-model DockQ scoring
 
@@ -335,6 +344,26 @@ Outputs:
 python scripts/11_cluster_dbscan_umap.py results/tables/averaged_dockq_scores.csv
 python scripts/12_plot_dendrogram.py results/tables/averaged_dockq_scores.csv
 ```
+
+## ✅ Testing and Reproducibility
+
+The repository includes a dependency-free smoke test that exercises self scoring and directed 1×1 cross scoring with a deterministic DockQ stand-in. It verifies job orchestration and output schemas; it does not replace validation against a real DockQ installation and real structural inputs.
+
+```bash
+bash tests/run_smoke_test.sh
+```
+
+The same check runs automatically on pushes and pull requests through GitHub Actions. For a full analysis, record the DockQ version, command-line options, input archive checksums, clustering parameters, and JARI-PROTACS release or commit SHA alongside your results.
+
+## 🔒 Data Availability
+
+This repository contains the analysis code and minimal test fixtures, not raw PRosettaC model archives, score tables, thesis drafts, or project-specific research outputs. Those materials are intentionally excluded to protect unpublished and project-specific work.
+
+To reproduce an analysis, supply your own PRosettaC model folders in the structure described above, or obtain the underlying data from the corresponding study authors when it becomes available. The absence of a bundled dataset should not be interpreted as a limitation on the supported input format.
+
+## 📖 Citation
+
+There is not yet an associated manuscript. Until one is available, cite this software repository and the specific version or commit used for your analysis. GitHub can generate a formatted software citation from [`CITATION.cff`](CITATION.cff).
 
 ## 🖥️ Triton / LSF Execution
 

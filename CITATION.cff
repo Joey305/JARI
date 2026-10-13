@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use JARI-PROTACS, please cite it using the metadata below."
+title: "JARI-PROTACS: Joint Analysis for Reproducible Interface Clustering"
+version: 0.1.0
+date-released: 2026-10-12
+abstract: "A reproducible DockQ-based workflow for analyzing and clustering PRosettaC-derived ternary-complex models."
+repository-code: "https://github.com/Joey305/JARI"
+license: MIT
+authors:
+  - family-names: Schulz
+    given-names: Jason M.
+    email: jmschulz@med.miami.edu
