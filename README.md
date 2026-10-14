@@ -363,9 +363,9 @@ To reproduce an analysis, supply your own PRosettaC model folders in the structu
 
 ## 📖 Citation
 
-There is not yet an associated manuscript. Until the Zenodo DOI is issued, cite the exact tagged software release:
+There is not yet an associated manuscript. Please cite the published Zenodo software record:
 
-> Schulz, J. M. (2026). *JARI-PROTACS: Joint Analysis for Reproducible Interface Clustering* (Version 0.1.0) [Computer software]. https://github.com/Joey305/JARI
+> The Schürer Lab. (2026). *JARI-PROTACS: Joint Analysis for Reproducible Interface Clustering* (Version v0.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23374556
 
 See [CITATION.md](CITATION.md) for the version-specific Zenodo DOI and a downloadable RIS file. GitHub can also generate a formatted citation from [`CITATION.cff`](CITATION.cff).
 
