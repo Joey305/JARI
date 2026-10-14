@@ -1,0 +1,13 @@
+{
+  "title": "JARI-PROTACS: Joint Analysis for Reproducible Interface Clustering",
+  "description": "A reproducible DockQ-based workflow for preparing, comparing, and clustering PRosettaC-derived ternary-complex models.",
+  "creators": [
+    {
+      "name": "Schulz, Jason M.",
+      "affiliation": "University of Miami"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": ["PROTAC", "ternary complex", "PRosettaC", "DockQ", "clustering", "reproducible research"]
+}

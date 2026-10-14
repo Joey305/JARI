@@ -363,7 +363,11 @@ To reproduce an analysis, supply your own PRosettaC model folders in the structu
 
 ## 📖 Citation
 
-There is not yet an associated manuscript. Until one is available, cite this software repository and the specific version or commit used for your analysis. GitHub can generate a formatted software citation from [`CITATION.cff`](CITATION.cff).
+There is not yet an associated manuscript. Until the Zenodo DOI is issued, cite the exact tagged software release:
+
+> Schulz, J. M. (2026). *JARI-PROTACS: Joint Analysis for Reproducible Interface Clustering* (Version 0.1.0) [Computer software]. https://github.com/Joey305/JARI
+
+GitHub can generate a formatted citation from [`CITATION.cff`](CITATION.cff). The repository also includes `.zenodo.json`; after publishing the GitHub release, use its version-specific Zenodo DOI in place of the GitHub URL and add the DOI to `CITATION.cff`.
 
 ## 🖥️ Triton / LSF Execution
 
