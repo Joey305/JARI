@@ -7,6 +7,7 @@ date-released: 2026-10-12
 abstract: "A reproducible DockQ-based workflow for analyzing and clustering PRosettaC-derived ternary-complex models."
 repository-code: "https://github.com/Joey305/JARI"
 url: "https://github.com/Joey305/JARI"
+doi: "10.5281/zenodo.23374556"
 license: MIT
 authors:
   - name: "The Schürer Lab"

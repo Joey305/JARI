@@ -367,7 +367,7 @@ There is not yet an associated manuscript. Until the Zenodo DOI is issued, cite 
 
 > Schulz, J. M. (2026). *JARI-PROTACS: Joint Analysis for Reproducible Interface Clustering* (Version 0.1.0) [Computer software]. https://github.com/Joey305/JARI
 
-GitHub can generate a formatted citation from [`CITATION.cff`](CITATION.cff). The repository also includes `.zenodo.json`; after publishing the GitHub release, use its version-specific Zenodo DOI in place of the GitHub URL and add the DOI to `CITATION.cff`.
+See [CITATION.md](CITATION.md) for the version-specific Zenodo DOI and a downloadable RIS file. GitHub can also generate a formatted citation from [`CITATION.cff`](CITATION.cff).
 
 ## 🖥️ Triton / LSF Execution
 
