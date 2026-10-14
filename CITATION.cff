@@ -9,6 +9,5 @@ repository-code: "https://github.com/Joey305/JARI"
 url: "https://github.com/Joey305/JARI"
 license: MIT
 authors:
-  - family-names: Schulz
-    given-names: Jason M.
-    email: jmschulz@med.miami.edu
+  - name: "The Schürer Lab"
+    affiliation: "University of Miami"
